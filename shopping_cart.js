@@ -1,5 +1,7 @@
 //Shopping cart
 let shoppingCart = [];
+//Discount and tax variables
+let Declare_discount_tax = {}
 
 //Add Item function
 function addItem(id, price, quantity){
@@ -43,9 +45,10 @@ function showCart(){
 
 function calculateTotal(){
     let total = 0;
-    let discountPercent = 10; // 10%
-    let discountValue = 5;
-    let taxRate = 5; // 5%
+    declare_discount_tax(18,0,0);
+    let discountPercent = Declare_discount_tax.discountPercent; 
+    let discountValue = Declare_discount_tax.discountValue;
+    let taxRate = Declare_discount_tax.taxRate; 
 
     for (let i = 0; i < shoppingCart.length; i++){
         let item = shoppingCart[i];
@@ -62,6 +65,32 @@ function calculateTotal(){
     total = total - discountAmount + taxAmount;
 
     return total;
+}
+
+function declare_discount_tax(discountPercent = 10, discountValue = 5, taxRate = 5){
+    if (discountPercent < 0 || discountPercent > 100) {
+        console.log("ERROR: discountPercent is invalid");
+        return;
+    }
+
+    if (discountValue < 0) {
+        console.log("ERROR: discountValue is invalid");
+        return;
+    }
+
+    if (taxRate < 0 || taxRate > 100) {
+        console.log("ERROR: taxRate is invalid");
+        return;
+    }
+
+    Declare_discount_tax = {
+        discountPercent: discountPercent,
+        discountValue: discountValue,
+        taxRate: taxRate
+    };
+
+    console.log("Discount: " + discountPercent + "% - " + discountValue);
+    console.log("Tax: " + taxRate + "%");
 }
 
 //Test
