@@ -1,30 +1,25 @@
-//Shopping cart
+// Shopping cart
 let shoppingCart = [];
-//Discount and tax variables
-let Declare_discount_tax = {}
 
-//Add Item function
+// ==========================================
+// 1. ADD ITEM FUNCTION
+// ==========================================
 function addItem(id, price, quantity){
-    //VALIDATION
-    //Validate id
+    // VALIDATION
     if (typeof id !== 'string' || id === ''){
         console.log("ERROR: id product is invalid ");
         return;
     }
-
-    //Validate price
     if (typeof price !== 'number' || price < 0) {
         console.log("ERROR: price is invalid ");
         return;
     }
-
-    //Validate quatity
-    if (typeof quantity !== 'number' || quantity <0 || !Number.isInteger(quantity)) {
+    if (typeof quantity !== 'number' || quantity < 0 || !Number.isInteger(quantity)) {
         console.log("ERROR: quantity is invalid ");
         return;
     }
 
-    //Create object
+    // Create object
     let item = {
         productID: id,
         itemPrice: price,
@@ -32,77 +27,96 @@ function addItem(id, price, quantity){
     };
 
     shoppingCart.push(item);
-    console.log("ADDED: " + id + " ,quantity: " + quantity );
+    console.log("ADDED: " + id + ", quantity: " + quantity );
 }
 
+// ==========================================
+// 2. SHOW CART FUNCTION
+// ==========================================
 function showCart(){
-    console.log("Shopping Cart: ");
+    console.log("\n--- Shopping Cart ---");
     for (let i = 0; i < shoppingCart.length; i++){
         let item = shoppingCart[i];
-        console.log("ID: " + item.productID + ", Price: " + item.itemPrice + ", Quantity: " + item.itemQuantity);
+        console.log("ID: " + item.productID + ", Price: " + item.itemPrice + "$, Quantity: " + item.itemQuantity);
     }
+    console.log("---------------------");
 }
 
-function calculateTotal(){
-    let total = 0;
-    declare_discount_tax(18,0,0);
-    let discountPercent = Declare_discount_tax.discountPercent; 
-    let discountValue = Declare_discount_tax.discountValue;
-    let taxRate = Declare_discount_tax.taxRate; 
-
-    for (let i = 0; i < shoppingCart.length; i++){
-        let item = shoppingCart[i];
-        total += item.itemPrice * item.itemQuantity;
-    }
-
-    //discount
-    let discountAmount = total * discountPercent/100 + discountValue;
+// ==========================================
+// 3. CALCULATE TOTAL FUNCTION (Đã nâng cấp)
+// ==========================================
+// Truyền trực tiếp tham số vào hàm kèm giá trị mặc định
+function calculateTotal(discountPercent = 10, discountValue = 5, taxRate = 5) {
     
-    //tax
-    let taxAmount = (total - discountAmount) * taxRate/100;
-
-    //final total
-    total = total - discountAmount + taxAmount;
-
-    return total;
-}
-
-function declare_discount_tax(discountPercent = 10, discountValue = 5, taxRate = 5){
+    // 3.1. Chuyển phần Validation xuống thẳng đây
     if (discountPercent < 0 || discountPercent > 100) {
         console.log("ERROR: discountPercent is invalid");
-        return;
+        return NaN; // Trả về NaN để báo lỗi tính toán
     }
-
     if (discountValue < 0) {
         console.log("ERROR: discountValue is invalid");
-        return;
+        return NaN;
     }
-
     if (taxRate < 0 || taxRate > 100) {
         console.log("ERROR: taxRate is invalid");
-        return;
+        return NaN;
     }
 
-    Declare_discount_tax = {
-        discountPercent: discountPercent,
-        discountValue: discountValue,
-        taxRate: taxRate
-    };
+    let subTotal = 0;
 
-    console.log("Discount: " + discountPercent + "% - " + discountValue);
-    console.log("Tax: " + taxRate + "%");
+    // 3.2. Tính tổng tiền hàng (Subtotal)
+    for (let i = 0; i < shoppingCart.length; i++){
+        let item = shoppingCart[i];
+        subTotal += item.itemPrice * item.itemQuantity;
+    }
+
+    // 3.3. Tính chiết khấu
+    let discountAmount = (subTotal * discountPercent / 100) + discountValue;
+    
+    // (Tùy chọn) Đảm bảo tiền giảm không lớn hơn tổng tiền hàng
+    if (discountAmount > subTotal) {
+        discountAmount = subTotal;
+    }
+    
+    // 3.4. Tính thuế (Dựa trên số tiền sau khi đã trừ chiết khấu)
+    let taxAmount = (subTotal - discountAmount) * taxRate / 100;
+
+    // 3.5. Tính tổng cuối cùng
+    let finalTotal = subTotal - discountAmount + taxAmount;
+
+    // In chi tiết ra console cho dễ nhìn
+    console.log(`Subtotal: ${subTotal}$`);
+    console.log(`Discount (${discountPercent}% + ${discountValue}$): -${discountAmount}$`);
+    console.log(`Tax (${taxRate}%): +${taxAmount}$`);
+    
+    return finalTotal;
 }
 
-//Test
-console.log("--TEST ADD ITEM--");
-//Validate input
-addItem("", 100, 2);           // Lỗi: id empty
-addItem("Ban Phim", -50, 1);   // Lỗi: price < 0
-addItem("Chuot", 20, 1.5);     // Lỗi: quantity is float
+// ==========================================
+// TEST SCENARIOS
+// ==========================================
+console.log("-- TEST ADD ITEM --");
+// Validate input errors
+addItem("", 100, 2);           
+addItem("Ban Phim", -50, 1);   
+addItem("Chuot", 20, 1.5);     
 
-//Add valid items
+// Add valid items
 addItem("Laptop Dell", 1000, 1);
 addItem("Tai nghe", 50, 2);
 
-showCart(); // show cart after validation errors
-console.log("Total: " + calculateTotal());
+showCart();
+
+console.log("\n-- TEST CALCULATE TOTAL --");
+
+console.log("\nKịch bản 1: Sử dụng cấu hình Mặc định (Giảm 10% + 5$, Thuế 5%)");
+let total1 = calculateTotal();
+console.log("=> TỔNG THANH TOÁN KỊCH BẢN 1: " + total1 + "$");
+
+console.log("\nKịch bản 2: Không giảm giá, Không trừ thẳng, Thuế 10%");
+let total2 = calculateTotal(0, 0, 10);
+console.log("=> TỔNG THANH TOÁN KỊCH BẢN 2: " + total2 + "$");
+
+console.log("\nKịch bản 3: Test lỗi (Truyền sai % thuế)");
+let total3 = calculateTotal(10, 5, 200); 
+console.log("=> TỔNG THANH TOÁN KỊCH BẢN 3: " + total3);
