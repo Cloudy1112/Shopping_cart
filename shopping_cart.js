@@ -2,12 +2,21 @@
 let shoppingCart = [];
 
 // ==========================================
+// 0. GENERATE UNIQUE ID FUNCTION
+// ==========================================
+function generateUniqueId() {
+    // Kết hợp thời gian hiện tại (Date.now) và một chuỗi ngẫu nhiên (Math.random)
+    // Cách này đảm bảo ID gần như không bao giờ bị trùng lặp
+    return 'DEV_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
+}
+
+// ==========================================
 // 1. ADD ITEM FUNCTION
 // ==========================================
-function addItem(id, price, quantity){
+function addItem(deviceName, price, quantity){
     // VALIDATION
-    if (typeof id !== 'string' || id === ''){
-        console.log("ERROR: id product is invalid ");
+    if (typeof deviceName !== 'string' || deviceName === ''){
+        console.log("ERROR: device name is invalid ");
         return;
     }
     if (typeof price !== 'number' || price < 0) {
@@ -21,13 +30,14 @@ function addItem(id, price, quantity){
 
     // Create object
     let item = {
-        productID: id,
+        productID: generateUniqueId(),
+        deviceName: deviceName,
         itemPrice: price,
         itemQuantity: quantity
     };
 
     shoppingCart.push(item);
-    console.log("ADDED: " + id + ", quantity: " + quantity );
+    console.log("ADDED: " + item.deviceName + ", quantity: " + item.itemQuantity + ", price: " + item.itemPrice + "$, ID: " + item.productID);
 }
 
 // ==========================================
@@ -37,7 +47,7 @@ function showCart(){
     console.log("\n--- Shopping Cart ---");
     for (let i = 0; i < shoppingCart.length; i++){
         let item = shoppingCart[i];
-        console.log("ID: " + item.productID + ", Price: " + item.itemPrice + "$, Quantity: " + item.itemQuantity);
+        console.log("ID: " + item.productID + ", Device: " + item.deviceName + ", Price: " + item.itemPrice + "$, Quantity: " + item.itemQuantity);
     }
     console.log("---------------------");
 }
